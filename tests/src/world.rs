@@ -11,7 +11,8 @@ use parking_lot::Mutex;
 use typst::diag::{bail, At, FileError, FileResult, SourceResult, StrResult};
 use typst::engine::Engine;
 use typst::foundations::{
-    func, Array, Bytes, Context, Datetime, IntoValue, NoneValue, Repr, Smart, Value,
+    func, Array, Bytes, Context, Datetime, Duration, IntoValue, NoneValue, Repr, Smart,
+    Value,
 };
 use typst::layout::{Abs, Margin, PageElem};
 use typst::model::{Numbering, NumberingPattern};
@@ -70,8 +71,12 @@ impl World for TestWorld {
         self.base.fonts.get(index).cloned()
     }
 
-    fn today(&self, _: Option<i64>) -> Option<Datetime> {
-        Some(Datetime::from_ymd(1970, 1, 1).unwrap())
+    fn today(&self, offset: Option<i64>) -> Option<Datetime> {
+        let mut date = Datetime::from_ymd(1970, 1, 1).unwrap();
+        if let Some(hours) = offset {
+            date = date + Duration::construct(0, 0, hours, 0, 0);
+        }
+        Some(date)
     }
 }
 
